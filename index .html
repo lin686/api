@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Pages 图片展示</title>
+    <title>CF Pages 图片展示</title>
     <style>
         /* 响应式网格布局 */
         #image-container {
@@ -32,12 +32,12 @@
 
     <script>
         const API_URL = 'https://oiapi.net/API/Cosplay';
-        const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'; // 使用公共CORS代理
+        const CF_PROXY = 'https://cf-anywhere.proxy.raxjoker.workers.dev/'; // Cloudflare Workers代理（备用）
 
         async function fetchImages() {
             try {
-                // 使用代理解决跨域问题
-                const response = await fetch(`${CORS_PROXY}/${API_URL}`);
+                // 使用CF Workers代理解决跨域
+                const response = await fetch(`${CF_PROXY}${API_URL}`);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const data = await response.json();
@@ -52,7 +52,7 @@
             } catch (error) {
                 const container = document.getElementById('image-container');
                 container.innerHTML = `<p style="color: red; text-align: center;">❌ 加载失败：${error.message}</p>`;
-                console.error('GitHub Pages错误:', error);
+                console.error('CF Pages错误:', error);
             }
         }
 
