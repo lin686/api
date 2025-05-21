@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Pages 图片展示</title>
+    <style>
+        /* 响应式网格布局 */
+        #image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+    <div id="image-container"></div>
+
+    <script>
+        const API_URL = 'https://oiapi.net/API/Cosplay';
+        const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/'; // 使用公共CORS代理
+
+        async function fetchImages() {
+            try {
+                // 使用代理解决跨域问题
+                const response = await fetch(`${CORS_PROXY}/${API_URL}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                const imageLinks = data.data?.images || [];
+                
+                if (imageLinks.length === 0) {
+                    throw new Error('API返回空图片列表');
+                }
+                
+                renderImages(imageLinks);
+                
+            } catch (error) {
+                const container = document.getElementById('image-container');
+                container.innerHTML = `<p style="color: red; text-align: center;">❌ 加载失败：${error.message}</p>`;
+                console.error('GitHub Pages错误:', error);
+            }
+        }
+
+        function renderImages(links) {
+            const container = document.getElementById('image-container');
+            container.innerHTML = '';
+            
+            links.forEach(link => {
+                const img = document.createElement('img');
+                img.src = link;
+                img.alt = 'Cosplay图片';
+                img.loading = 'lazy'; // 懒加载提升性能
+                
+                // 错误处理：图片加载失败时隐藏并提示
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style = 'color: red; text-align: center; padding: 10px;';
+                    errorDiv.textContent = `❌ 图片加载失败：${link}`;
+                    img.parentElement.appendChild(errorDiv);
+                };
+                
+                container.appendChild(img);
+            });
+        }
+
+        // 页面加载时触发请求
+        window.addEventListener('DOMContentLoaded', fetchImages);
+    </script>
+</body>
+</html>
